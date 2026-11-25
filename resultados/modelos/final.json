@@ -1,20 +1,20 @@
 {
   "run": "E08-r01-hgb-busca+kw_soma",
   "config": {
+    "blocos": [
+      "B"
+    ],
+    "desbalanceamento": "balanced",
     "modelo": "hgb",
     "params": {
-      "max_iter": 600,
       "l2_regularization": 0.12164139351417062,
       "learning_rate": 0.046435871190065744,
       "max_features": 0.5509260099809907,
+      "max_iter": 600,
       "max_leaf_nodes": 55,
       "min_samples_leaf": 37
     },
-    "desbalanceamento": "balanced",
-    "seed": 42,
-    "blocos": [
-      "B"
-    ]
+    "seed": 42
   },
   "config_hash": "8c781e9b",
   "cv_bal_acc": 0.5345236404935274,

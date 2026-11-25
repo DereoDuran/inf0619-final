@@ -129,7 +129,23 @@ def bloco_contagem_na(df):
     return novas
 
 
-BLOCOS = {"B": bloco_keywords, "E": bloco_familia, "A": bloco_ausencia, "N": bloco_contagem_na}
+LETRA_PI2 = {l: i for i, l in enumerate("ABCDE")}
+COMBINACAO_PI2 = {v: k for k, v in CODIGO_PI2.items()}  # código → "D3"
+
+
+def bloco_interacoes(df):
+    """Bloco D (2º lugar): interações das medidas com a idade."""
+    return {"bmi_x_idade": df["BMI"] * df["Ins_Age"], "wt_x_idade": df["Wt"] * df["Ins_Age"]}
+
+
+def bloco_pi2(df):
+    """Bloco P (2º lugar): letra e número da Product_Info_2 separados."""
+    comb = df["Product_Info_2"].map(COMBINACAO_PI2)  # a prepara já trocou o texto pelo código
+    return {"pi2_letra": comb.str[0].map(LETRA_PI2), "pi2_numero": comb.str[1].astype(int)}
+
+
+BLOCOS = {"B": bloco_keywords, "E": bloco_familia, "A": bloco_ausencia, "N": bloco_contagem_na,
+          "D": bloco_interacoes, "P": bloco_pi2}
 
 
 def prepara(df, blocos=()):
@@ -146,7 +162,7 @@ SEQUENCIAL = LinearSegmentedColormap.from_list("sequencial", ["#ffffff", "#9ec5f
 def plota_confusao(y_true, y_pred, titulo, classes=range(1, 9)):
     """Matriz de confusão normalizada por linha (% de cada classe real), com o valor em todas as células."""
     cm = confusion_matrix(y_true, y_pred, labels=list(classes), normalize="true") * 100
-    fig, ax = plt.subplots(figsize=(6, 5.2))
+    fig, ax = plt.subplots(figsize=(6, 5.2), layout="constrained")
     im = ax.imshow(cm, cmap=SEQUENCIAL, vmin=0, vmax=100)
     for i in range(cm.shape[0]):
         for j in range(cm.shape[1]):
@@ -160,12 +176,36 @@ def plota_confusao(y_true, y_pred, titulo, classes=range(1, 9)):
     ax.set_ylabel("classe real")
     ax.grid(False)
     fig.colorbar(im, ax=ax, label="% da classe real")
-    ax.set_title(titulo, loc="left", fontsize=10)
+    fig.suptitle(titulo, x=0.02, ha="left", fontsize=10, color=TINTA)
     plt.show()
     return cm
 
 CAT_NATIVAS = [c for c in CAT if c != "Medical_History_2"]  # a MH2 passa do limite de 255 categorias do HGB
 
+class KeywordAlvo(BaseEstimator, TransformerMixin):
+    """1º lugar: média do Response para cada keyword-valor (com cross-fitting no treino);
+    por linha, a média e o mínimo dessas 48 médias."""
+
+    def __init__(self, colunas, seed=0):
+        self.colunas = colunas
+        self.seed = seed
+
+    def fit_transform(self, X, y):
+        self.te_ = TargetEncoder(target_type="continuous", random_state=self.seed)
+        return self._junta(X, self.te_.fit_transform(X[self.colunas], y))
+
+    def fit(self, X, y):
+        self.fit_transform(X, y)
+        return self
+
+    def transform(self, X):
+        return self._junta(X, self.te_.transform(X[self.colunas]))
+
+    def _junta(self, X, enc):
+        X = X.reset_index(drop=True).copy()
+        X["kw_alvo_media"] = enc.mean(axis=1)
+        X["kw_alvo_min"] = enc.min(axis=1)
+        return X
 
 class FrequenciaEncoder(BaseEstimator, TransformerMixin):
     """Acrescenta, para cada coluna, a fração de linhas do treino com aquela categoria (categoria nova vira 0)."""

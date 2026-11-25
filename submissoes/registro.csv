@@ -1,2 +1,7 @@
 data,arquivo,run,config_hash,cv_bal_acc,kaggle_publico
 2026-11-24,2026-11-24-E08-r01-hgb-busca+kw_soma.csv,E08-r01-hgb-busca+kw_soma,8c781e9b,0.5345,0.53447
+2026-11-25,2026-11-25-E15-r01-stack_5seeds.csv,E15-r01-stack_5seeds,3818ab46,0.5402,0.54377
+2026-11-25,2026-11-25-E15-r02-stack_diverso.csv,E15-r02-stack_diverso,a10853e8,0.5397,0.54549
+2026-11-25,2026-11-25-E15-r03-stack_tudo.csv,E15-r03-stack_tudo,1aeda8d7,0.5392,0.5466
+2026-11-25,2026-11-25-E14-r01-stack_logistica.csv,E14-r01-stack_logistica,fa1c7d04,0.5375,0.54187
+2026-11-25,2026-11-25-E12-r01-hgb-5seeds.csv,E12-r01-hgb-5seeds,395ff1c3,0.536,0.53957
